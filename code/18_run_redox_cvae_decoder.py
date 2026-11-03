@@ -2,13 +2,13 @@
 """
 18_run_redox_cvae_decoder.py
 Phase 2.2 — Run the Arabidopsis ROS Decoder (CVAE latent space & redox profiling)
-on Brassica rapa Lunar LEAF GCR radiation contrasts.
+on Brassica rapa Lunar LEAF pure radiation contrasts.
 
-Evaluates:
-1. Predicted ROS stimulus probability distribution (H2O2, Superoxide/Paraquat, Singlet Oxygen, Ozone, High Light, Menadione)
-2. Inferred response kinetic timing (<1h immediate, 1-4h early, 4-12h mid, >12h late)
-3. Anatomical and cell-type vulnerability scores across 5 organs (Leaf, Root, Floral/Inflorescence)
-4. Antioxidant Deficit Test: WT vs anthocyaninless mutant (loss of anthocyanin antioxidant buffering under 40 cGy GCR)
+Evaluates 4 radiation contrasts:
+1. WT 40 cGy vs 0 cGy GCR (acclimated wild-type response)
+2. AnthoLess 40 cGy vs 0 cGy GCR (antioxidant-deficient response)
+3. Interaction Dose x Genotype (excess radiation stress in anl)
+4. Interaction Dose x Preservative (RL vs DRS fixative stabilization)
 
 Author: Antigravity Assistant & Dr. Richard Barker
 Date: November 2026
@@ -29,16 +29,15 @@ RESULTS_DIR = WORKSPACE_DIR / "results"
 RESULTS_DIR.mkdir(exist_ok=True)
 
 print("=" * 70)
-print("18_run_redox_cvae_decoder: Running Arabidopsis ROS Decoder on B. rapa")
+print("18_run_redox_cvae_decoder: Running Arabidopsis ROS Decoder on B. rapa Radiation")
 print("=" * 70)
 
 # 1. Load Master Ingested Data
-master_file = DATA_DIR / "brappa_master_orthology_contrasts.csv"
-print(f"Loading B. rapa master contrasts from: {master_file}")
+master_file = DATA_DIR / "brappa_master_radiation_contrasts.csv"
+print(f"Loading B. rapa master radiation contrasts from: {master_file}")
 df_master = pd.read_csv(master_file)
 
 # 2. Redox Gene Profiles & Weight Matrix from Redox_decoder
-# Reference genes from Redox_decoder knowledge base with AGI mappings
 REDOX_REFERENCE = [
     {"symbol": "CAT2", "agi": "AT4G35090", "weights": {"h2o2": 0.95, "paraquat": 0.45, "menadione": 0.30, "ozone": 0.65, "singlet_oxygen": 0.40, "high_light": 0.85}, "timeHours": 16.0, "cellScores": {"Mesophyll": 0.95, "Epidermis": 0.65, "Stele": 0.20, "Cortex": 0.15, "Root_Cap": 0.10, "Petal": 0.40, "Anther": 0.30, "Gynoecium": 0.35, "Vascular": 0.70, "Endodermis": 0.20, "Meristematic": 0.25}},
     {"symbol": "CAT1", "agi": "AT1G20630", "weights": {"h2o2": 0.85, "paraquat": 0.35, "menadione": 0.25, "ozone": 0.50, "singlet_oxygen": 0.30, "high_light": 0.60}, "timeHours": 14.0, "cellScores": {"Epidermis": 0.88, "Mesophyll": 0.70, "Stele": 0.45, "Cortex": 0.40, "Root_Cap": 0.50, "Petal": 0.30, "Anther": 0.25, "Gynoecium": 0.30, "Vascular": 0.55, "Endodermis": 0.35, "Meristematic": 0.60}},
@@ -69,14 +68,14 @@ contrasts = {
     "WT_GCR_40cGy": "WT_40cGy_vs_0cGy_log2FC",
     "AnthoLess_GCR_40cGy": "antho_less_40cGy_vs_0cGy_log2FC",
     "Interaction_Dose_x_Genotype": "inter_dose_x_genotype_log2FC",
-    "Scent_High_vs_Low": "scent_High_vs_Low_log2FC"
+    "Interaction_Dose_x_Preservative": "inter_dose_x_preservative_log2FC"
 }
 
 predictions = []
 spatial_scores_all = []
 
 for cname, ccol in contrasts.items():
-    print(f"\nDecoding contrast: {cname}...")
+    print(f"\nDecoding radiation contrast: {cname}...")
     
     # Filter genes present in B. rapa with TAIR10 orthologs
     matched = []
@@ -97,7 +96,6 @@ for cname, ccol in contrasts.items():
     cell_accum = {ct: 0.0 for ct in cell_types}
     
     for m in matched:
-        # ReLu on positive fold-change (or signed influence)
         act = np.maximum(0.0, m["lfc"]) + 0.1 * np.abs(m["lfc"])
         for s in stim_classes:
             stim_scores[s] += act * m["weights"][s]
@@ -154,8 +152,8 @@ out_spat_path = RESULTS_DIR / "redox_decoder_organ_cell_scores.csv"
 df_pred.to_csv(out_pred_path, index=False)
 df_spatial.to_csv(out_spat_path, index=False)
 
-print(f"\n[Saved] Redox Predictions -> {out_pred_path}")
-print(f"[Saved] Spatial Cell Vulnerability Scores -> {out_spat_path}")
+print(f"\n[Saved] Pure Radiation Redox Predictions -> {out_pred_path}")
+print(f"[Saved] Pure Radiation Spatial Cell Vulnerability Scores -> {out_spat_path}")
 print("=" * 70)
 print("18_run_redox_cvae_decoder: Completed successfully!")
 print("=" * 70)

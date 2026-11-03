@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-19_brappa_rri_and_scent_tradeoff.py
-Phase 3 — Compute the Radiation Resilience Index (RRI) across the 31 B. rapa
-libraries and quantify the metabolic trade-off between DNA repair/antioxidant defense
-and floral volatile emission.
+19_brappa_rri_and_antioxidant_shield.py
+Phase 3 — Compute the Radiation Resilience Index (RRI), evaluate the Antioxidant
+Shield Deficit (WT vs anthocyaninless), and assess Spaceflight Preservative
+Fidelity (Deep Space Preservative DRS vs RNAlater RL).
 
 Evaluates:
 1. Sample-level RRI (latent stability, pathway balance, and housekeeping module preservation)
-2. Genotype comparison: WT vs anthocyaninless mutant resilience under 40 cGy GCR
-3. Preservative effect: DRS vs RNAlater stability
-4. Scent pathway routing: Benzenoid/phenylpropanoid, terpenoid, and carotenoid trade-offs
-5. DSB repair core activation (BRCA1, PARP2, RAD51, SMR7) vs volatile synthases
+2. Genotype divergence: WT vs anthocyaninless mutant under 40 cGy GCR
+3. Preservative fidelity: DRS vs RNAlater transcriptomic parity
+4. Core DNA double-strand-break (DSB) repair network (BRCA1, PARP2, RAD51, SMR7)
+5. Phenylpropanoid / flavonoid protective antioxidant shunt (PAL, CHS, CHI, F3H)
 
 Author: Antigravity Assistant & Dr. Richard Barker
 Date: November 2026
@@ -31,13 +31,13 @@ RESULTS_DIR = WORKSPACE_DIR / "results"
 RESULTS_DIR.mkdir(exist_ok=True)
 
 print("=" * 70)
-print("19_brappa_rri_and_scent_tradeoff: Computing RRI & Metabolic Trade-offs")
+print("19_brappa_rri_and_antioxidant_shield: Computing RRI, Preservative & DDR Metrics")
 print("=" * 70)
 
 # 1. Load Expression Data & Metadata from B. rapa
 deseq_file = Path("/Users/drb_laptop/Documents/B_rappa_LLGCSS/Radiation model/Results_LFC_Pval_DESeq2.csv")
 meta_file = Path("/Users/drb_laptop/Documents/B_rappa_LLGCSS/counts and factors/LEAF_Metadata.csv")
-master_file = DATA_DIR / "brappa_master_orthology_contrasts.csv"
+master_file = DATA_DIR / "brappa_master_radiation_contrasts.csv"
 
 print(f"Loading DESeq2 expression matrix from: {deseq_file}")
 df_deseq = pd.read_csv(deseq_file)
@@ -55,20 +55,19 @@ for c in sample_cols:
 # Clean gene IDs
 df_deseq["BRA_id"] = df_deseq["ensembl_ID"].astype(str).str.strip().str.upper()
 
-# Merge with ortholog and scent annotations
+# Merge with ortholog annotations
 expr_annot = pd.merge(
     df_deseq[["BRA_id"] + sample_cols],
-    df_master[["BRA_id", "arabidopsis_agi", "tier", "routes", "is_scent_curated", "WT_40cGy_vs_0cGy_log2FC", "antho_less_40cGy_vs_0cGy_log2FC"]],
+    df_master[["BRA_id", "arabidopsis_agi", "WT_40cGy_vs_0cGy_log2FC", "antho_less_40cGy_vs_0cGy_log2FC", "inter_dose_x_genotype_log2FC", "inter_dose_x_preservative_log2FC"]],
     on="BRA_id",
     how="left"
 )
 
 # 2. Extract Subsets for RRI computation
-# Filter for genes with detectable expression across samples
 row_sums = expr_annot[sample_cols].sum(axis=1)
 expr_expressed = expr_annot[row_sums > 0].copy()
 
-# A. Ortholog space for latent distance
+# Ortholog space for latent distance
 ortho_expr = expr_expressed.dropna(subset=["arabidopsis_agi"]).drop_duplicates("arabidopsis_agi")
 X = ortho_expr[sample_cols].values.T # (31 samples x N genes)
 
@@ -81,7 +80,6 @@ for s in sample_cols:
         pres = row["preservative"].values[0]
         geno = row["genotype"].values[0]
     else:
-        # Infer from name
         cond = "40_cGy" if "40" in s else "0_cGy"
         pres = "RL" if "R" in s else "DRS"
         geno = "antho_less" if s.startswith("AL") else "WT"
@@ -96,7 +94,6 @@ for s in sample_cols:
 meta_df = pd.DataFrame(meta_records)
 
 # 3. Compute RRI Components
-# Component 1: Latent Distance RRI
 ctrl_mask = meta_df["is_control"].values
 if np.sum(ctrl_mask) == 0:
     ctrl_mask = (meta_df["condition"] == "0_cGy").values
@@ -113,28 +110,20 @@ sample_dists = cdist(X, ctrl_centroid, metric="euclidean").flatten()
 rri_latent = np.exp(- (sample_dists ** 2) / (2 * (sigma ** 2)))
 rri_latent = np.clip(rri_latent, 0.0, 1.0)
 
-# Component 2: Pathway Balance RRI
-# Pathway sets: DSB Repair, ROS Scavenging, Anthocyanin/Phenylpropanoid, Scent/Terpenoid
+# Component 2: Pathway Balance RRI (DDR, ROS Defense, Flavonoids)
 pathway_genes = {
     "dsb_repair": ["AT4G21070", "AT4G02390", "AT5G20850", "AT3G27630", "AT3G02820", "AT5G41650"],
     "ros_defense": ["AT1G07890", "AT4G35090", "AT1G20630", "AT1G08830", "AT4G25100", "AT3G22370", "AT3G24170"],
-    "phenylpropanoid": ["AT5G13930", "AT3G53260", "AT5G42800", "AT3G51240"]
+    "phenylpropanoid": ["AT5G13930", "AT3G53260", "AT5G42800", "AT3G51240", "AT2G37040", "AT3G55120"]
 }
 
 pathway_scores_per_sample = []
 for s in sample_cols:
     scores = []
-    # DSB
-    sub_dsb = expr_expressed[expr_expressed["arabidopsis_agi"].isin(pathway_genes["dsb_repair"])]
-    scores.append(sub_dsb[s].mean() if not sub_dsb.empty else 1.0)
-    # ROS
-    sub_ros = expr_expressed[expr_expressed["arabidopsis_agi"].isin(pathway_genes["ros_defense"])]
-    scores.append(sub_ros[s].mean() if not sub_ros.empty else 1.0)
-    # Scent Tier 1
-    sub_scent = expr_expressed[expr_expressed["tier"] == 1]
-    scores.append(sub_scent[s].mean() if not sub_scent.empty else 1.0)
+    for pname, glist in pathway_genes.items():
+        sub = expr_expressed[expr_expressed["arabidopsis_agi"].isin(glist)]
+        scores.append(sub[s].mean() if not sub.empty else 1.0)
     
-    # Normalize to probabilities for Shannon evenness
     p_vec = np.array(scores)
     p_norm = p_vec / np.sum(p_vec) if np.sum(p_vec) > 0 else np.ones(len(scores)) / len(scores)
     h = entropy(p_norm)
@@ -145,7 +134,6 @@ for s in sample_cols:
 rri_pathway = np.clip(np.array(pathway_scores_per_sample), 0.0, 1.0)
 
 # Component 3: Housekeeping Module Preservation RRI
-# Use top 20% lowest-variance genes across controls as proxy for sustained housekeeping module
 ctrl_var = np.var(ctrl_X, axis=0)
 hk_idx = np.argsort(ctrl_var)[:int(0.2 * len(ctrl_var))]
 ctrl_hk_mean = np.mean(ctrl_X[:, hk_idx], axis=0)
@@ -164,50 +152,77 @@ meta_df["RRI_latent"] = rri_latent
 meta_df["RRI_pathway"] = rri_pathway
 meta_df["RRI_module"] = rri_module
 
-print(f"\nRRI Summary Statistics:")
+print(f"\nRRI Summary Statistics by Genotype and Dose:")
 rri_summary = meta_df.groupby(["genotype", "condition"])[["RRI", "RRI_latent", "RRI_pathway", "RRI_module"]].mean()
 print(rri_summary)
 
-# 4. Scent vs Radiation Trade-off Analysis
-# Group scent genes by route and test expression difference across WT vs AnthoLess under 40 cGy
-scent_df = expr_annot[expr_annot["is_scent_curated"] == True].copy()
-tradeoff_results = []
+print(f"\nRRI Summary Statistics by Preservative Fixative:")
+pres_summary = meta_df.groupby(["preservative", "condition"])[["RRI", "RRI_latent", "RRI_pathway", "RRI_module"]].mean()
+print(pres_summary)
 
-wt_0_cols = [s for s in sample_cols if "W0" in s]
-wt_40_cols = [s for s in sample_cols if "W40" in s]
-al_0_cols = [s for s in sample_cols if "AL0" in s]
-al_40_cols = [s for s in sample_cols if "AL40" in s]
+# 4. Preservative Fidelity & DDR Network Evaluation
+# Compare DRS vs RL expression across radiation-responsive genes
+wt_0_drs = [s for s in sample_cols if "W0D" in s]
+wt_40_drs = [s for s in sample_cols if "W40D" in s]
+wt_0_rl = [s for s in sample_cols if "W0R" in s]
+wt_40_rl = [s for s in sample_cols if "W40R" in s]
 
-for route, grp in scent_df.groupby("routes"):
-    wt_0_vals = grp[wt_0_cols].values.flatten()
-    wt_40_vals = grp[wt_40_cols].values.flatten()
-    al_0_vals = grp[al_0_cols].values.flatten()
-    al_40_vals = grp[al_40_cols].values.flatten()
-    
-    wt_fold = np.mean(wt_40_vals) - np.mean(wt_0_vals)
-    al_fold = np.mean(al_40_vals) - np.mean(al_0_vals)
-    
-    tradeoff_results.append({
-        "route": route,
-        "n_genes": len(grp),
-        "wt_mean_delta": wt_fold,
-        "al_mean_delta": al_fold,
-        "delta_gap": al_fold - wt_fold
-    })
+drs_lfc = expr_expressed[wt_40_drs].mean(axis=1) - expr_expressed[wt_0_drs].mean(axis=1)
+rl_lfc = expr_expressed[wt_40_rl].mean(axis=1) - expr_expressed[wt_0_rl].mean(axis=1)
 
-df_tradeoff = pd.DataFrame(tradeoff_results).sort_values("n_genes", ascending=False)
-print(f"\nFloral Scent Route Metabolic Shifts (40 cGy vs 0 cGy):")
-print(df_tradeoff)
+pres_corr_r, pres_corr_p = pearsonr(drs_lfc, rl_lfc)
+print(f"\nPreservative Fixative Parity (DRS vs RNAlater):")
+print(f"  Pearson correlation across all expressed genes: r = {pres_corr_r:.4f} (p = {pres_corr_p:.2e})")
 
-# Save RRI and Trade-off Tables
+# Evaluate Core DNA Double-Strand Break Repair (DDR) Network
+ddr_markers = [
+    {"symbol": "BRCA1", "agi": "AT4G21070", "desc": "Breast cancer susceptibility 1 / DSB repair"},
+    {"symbol": "PARP2", "agi": "AT4G02390", "desc": "Poly(ADP-ribose) polymerase 2 / DNA strand break sensor"},
+    {"symbol": "RAD51", "agi": "AT5G20850", "desc": "DNA repair protein RAD51 / homologous recombination"},
+    {"symbol": "SMR7", "agi": "AT3G27630", "desc": "SIAMESE-RELATED 7 / DNA damage cell cycle arrest"},
+    {"symbol": "PAL1", "agi": "AT2G37040", "desc": "Phenylalanine ammonia-lyase / flavonoid antioxidant entry"},
+    {"symbol": "CHS", "agi": "AT5G13930", "desc": "Chalcone synthase / anthocyanin gateway enzyme"},
+    {"symbol": "F3H", "agi": "AT3G51240", "desc": "Flavanone 3-hydroxylase / flavonoid core biosynthesis"}
+]
+
+ddr_summary_records = []
+for m in ddr_markers:
+    sub = expr_annot[expr_annot["arabidopsis_agi"] == m["agi"]]
+    if not sub.empty:
+        wt_lfc = sub["WT_40cGy_vs_0cGy_log2FC"].values[0]
+        anl_lfc = sub["antho_less_40cGy_vs_0cGy_log2FC"].values[0]
+        inter_g = sub["inter_dose_x_genotype_log2FC"].values[0]
+        inter_p = sub["inter_dose_x_preservative_log2FC"].values[0]
+        ddr_summary_records.append({
+            "symbol": m["symbol"],
+            "agi": m["agi"],
+            "description": m["desc"],
+            "bra_id": sub["BRA_id"].values[0],
+            "WT_40cGy_log2FC": wt_lfc,
+            "AnthoLess_40cGy_log2FC": anl_lfc,
+            "Inter_Genotype_log2FC": inter_g,
+            "Inter_Preservative_log2FC": inter_p
+        })
+
+df_ddr = pd.DataFrame(ddr_summary_records)
+print(f"\nCore DDR and Phenylpropanoid Defense Markers:")
+print(df_ddr[["symbol", "WT_40cGy_log2FC", "AnthoLess_40cGy_log2FC", "Inter_Genotype_log2FC", "Inter_Preservative_log2FC"]])
+
+# Save Output Tables
 out_rri_path = RESULTS_DIR / "brappa_rri_sample_scores.csv"
-out_tradeoff_path = RESULTS_DIR / "brappa_scent_tradeoff_summary.csv"
+out_ddr_path = RESULTS_DIR / "brappa_preservative_and_ddr_summary.csv"
 
 meta_df.to_csv(out_rri_path, index=False)
-df_tradeoff.to_csv(out_tradeoff_path, index=False)
+df_ddr.to_csv(out_ddr_path, index=False)
+
+# Clean up obsolete scent files
+for stale in [WORKSPACE_DIR / "code" / "19_brappa_rri_and_scent_tradeoff.py", RESULTS_DIR / "brappa_scent_tradeoff_summary.csv"]:
+    if stale.exists():
+        stale.unlink()
+        print(f"[Deleted] Removed obsolete scent file: {stale}")
 
 print(f"\n[Saved] Sample RRI Scores -> {out_rri_path}")
-print(f"[Saved] Scent Tradeoff Summary -> {out_tradeoff_path}")
+print(f"[Saved] Preservative & DDR Summary -> {out_ddr_path}")
 print("=" * 70)
-print("19_brappa_rri_and_scent_tradeoff: Completed successfully!")
+print("19_brappa_rri_and_antioxidant_shield: Completed successfully!")
 print("=" * 70)

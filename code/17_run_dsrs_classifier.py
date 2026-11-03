@@ -2,7 +2,13 @@
 """
 17_run_dsrs_classifier.py
 Phase 2.1 — Run the DeepSpace Stress-Recognition System (DSRS) on Brassica rapa
-GCR radiation and floral scent signatures.
+GCR radiation contrasts.
+
+Evaluates 4 pure radiation query signatures:
+1. WT 40 cGy vs 0 cGy GCR
+2. Anthocyaninless (anl) 40 cGy vs 0 cGy GCR
+3. Dose x Genotype Interaction (excess radiation effect in anl)
+4. Dose x Preservative Interaction (RL vs DRS fixative)
 
 Projects the orthology-mapped B. rapa gene signatures onto the 123 seed developmental
 panels and evaluates correlation with 27 reference spaceflight and physical stressor contrasts.
@@ -25,7 +31,7 @@ RESULTS_DIR = WORKSPACE_DIR / "results"
 RESULTS_DIR.mkdir(exist_ok=True)
 
 print("=" * 70)
-print("17_run_dsrs_classifier: Running DSRS Stress-Recognition Classification")
+print("17_run_dsrs_classifier: Running DSRS Pure Radiation Stress-Recognition")
 print("=" * 70)
 
 # 1. Load Reference Panel Library
@@ -65,7 +71,7 @@ def compute_gsea_es(ranked_genes, ranked_vals, gene_set, p=1.0):
     min_d = np.min(diff)
     return float(max_d if max_d > -min_d else min_d)
 
-def project_signature(sig_df, n_perms=100, seed=42):
+def project_signature(sig_df, n_perms=60, seed=42):
     """Project signature onto 123 panels with permutation normalization."""
     np.random.seed(seed)
     sorted_sig = sig_df.sort_values("log2FC", ascending=False).dropna(subset=["gene_id", "log2FC"])
@@ -99,12 +105,12 @@ def project_signature(sig_df, n_perms=100, seed=42):
             
     return pd.Series(nes)
 
-# Signatures to evaluate
+# Pure radiation query signatures
 queries = {
     "Brapa_WT_GCR_40cGy": DATA_DIR / "brappa_sig_wt_gcr_40cGy.csv",
     "Brapa_AnthoLess_GCR_40cGy": DATA_DIR / "brappa_sig_antho_less_gcr_40cGy.csv",
     "Brapa_Interaction_Dose_x_Genotype": DATA_DIR / "brappa_sig_inter_dose_genotype.csv",
-    "Brapa_Scent_High_vs_Low": DATA_DIR / "brappa_sig_scent_high_vs_low.csv"
+    "Brapa_Interaction_Dose_x_Preservative": DATA_DIR / "brappa_sig_inter_dose_preservative.csv"
 }
 
 projected_nes_dict = {}

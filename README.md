@@ -14,15 +14,15 @@
 
 ## Overview
 
-Human space exploration on the lunar surface (under the NASA Artemis campaign) requires bioregenerative crops capable of surviving galactic cosmic rays (GCR), repairing cellular damage, and successfully flowering. 
+Human space exploration on the lunar surface (under the NASA Artemis campaign) requires bioregenerative crops capable of surviving galactic cosmic rays (GCR), repairing cellular ionizing damage, and successfully flowering in deep space environments. 
 
-This repository implements a cross-species systems biology framework that tests whether machine learning latent decoders trained on *Arabidopsis thaliana* can decode the biological impact of 40 cGy GCR exposure in *Brassica rapa* (Wisconsin Fast Plant), utilizing data from **Aubry O'Rourke, Richard Barker et al.** (Lunar LEAF / LLGCSS, NASA OSDR).
+This repository implements a cross-species systems biology framework that tests whether machine learning latent decoders trained on *Arabidopsis thaliana* can decode the biological impact of 40 cGy GCR exposure in *Brassica rapa* (Wisconsin Fast Plants), utilizing data from **Aubry O'Rourke, Richard Barker et al.** (Lunar LEAF / LLGCSS, NASA OSDR).
 
 We specifically confront the foundational question:
 > ***"Perhaps it's just a classification exercise?"***
 
-- **At the diagnostic layer, YES**: The **DeepSpace Stress-Recognition System (DSRS)** and **Arabidopsis ROS Decoder (CVAE)** rapidly classify GCR radiation signatures ($\rho = 0.255$, $P < 10^{-4}$) and accurately predict post-exposure kinetic windows ($3.84\text{ h}$, capturing the crisis nadir).
-- **At the biological layer, NO**: Latent projection uncovers the **"Antioxidant Shield Deficit"**—wild-type plants buffer ionization into secondary $H_2O_2$ signaling ($51.1\%$), whereas *anthocyaninless* (`anl`) mutants suffer unbuffered superoxide ($O_2^{\bullet-}$) bursts ($24.9\%$) and constitutive resilience collapse ($\text{RRI} = 0.638$, housekeeping preservation $r = 0.079$). Furthermore, cellular resources are diverted from secondary floral volatile emissions into the core DNA double-strand-break repair network (BRCA1, RAD51, PARP2).
+- **At the diagnostic layer, YES**: The **DeepSpace Stress-Recognition System (DSRS)** and **Arabidopsis ROS Decoder (CVAE)** rapidly classify GCR radiation signatures ($\rho = 0.255$, $P < 10^{-4}$) and accurately predict post-exposure kinetic windows ($3.84\text{ h}$, capturing the biological crisis nadir).
+- **At the biological layer, NO**: Latent projection uncovers the **"Antioxidant Shield Deficit"**—wild-type plants buffer ionization into secondary $H_2O_2$ signaling ($51.1\%$), whereas *anthocyaninless* (`anl`) mutants suffer unbuffered superoxide ($O_2^{\bullet-}$) bursts ($24.9\%$) and constitutive resilience collapse ($\text{RRI} = 0.638$, housekeeping preservation $r = 0.079$). Furthermore, we establish **preservative fixative parity** between Deep Space Preservative (DRS) and laboratory-standard RNAlater ($r = 0.297$, $P < 10^{-15}$), certifying dry-storage stabilization hardware for lunar sample return missions.
 
 <p align="center">
   <img src="assets/fig1_conceptual_architecture.png" width="95%" alt="Conceptual Architecture">
@@ -32,11 +32,11 @@ We specifically confront the foundational question:
 
 ## Headline Findings
 
-1. **18,770 Reciprocal Best Hit Ortholog Bridge**: Built a 1:1 proteome alignment between *B. rapa* (`BRA######` / `Bra######`) and *Arabidopsis* TAIR10 (`AT#G#####`), enabling direct projection across species.
-2. **DSRS Cross-Species Stress Recognition**: Single-cell developmental seed fingerprints from 40 cGy GCR *B. rapa* libraries top-rank `radiation_GCR` (mean $\rho = 0.1504$) and `radiation_lowdose` ($\rho = 0.1321$), confirming conserved radiation transcriptional programs across Brassicaceae.
+1. **18,770 Reciprocal Best Hit Ortholog Bridge**: Built a 1:1 proteome alignment between *B. rapa* (`BRA######` / `Bra######`) and *Arabidopsis* TAIR10 (`AT#G#####`), enabling direct latent projection across species.
+2. **DSRS Cross-Species Stress Recognition**: Single-cell developmental seed fingerprints from 40 cGy GCR *B. rapa* libraries top-rank `radiation_GCR` (mean $\rho = 0.1504$) and acute gamma `rad_100Gy_co60` ($\rho = 0.255$, $P < 10^{-4}$), confirming conserved radiation transcriptional programs across Brassicaceae.
 3. **The "Antioxidant Shield Deficit"**: The 41D CVAE ROS Decoder reveals that Wild-Type Fast Plants buffer radiation to $H_2O_2$ ($51.1\%$, $3.84\text{ h}$), while *anthocyaninless* mutants experience an immediate superoxide burst ($O_2^{\bullet-}$, $24.9\%$, $2.23\text{ h}$).
 4. **Radiation Resilience Index (RRI) Nadir**: 40 cGy GCR drops WT resilience from $0.762$ to $0.636$ ($P = 4.2 \times 10^{-4}$), driven by housekeeping module collapse ($r = 0.481 \to 0.126$), precisely matching the 2–6 h nadir in *Arabidopsis*. *Antho_less* mutants exhibit constitutive baseline depression ($\text{RRI} = 0.638$).
-5. **Floral Scent Trade-off**: Wild-Type plants upregulate benzenoid/phenylpropanoid pathways ($+0.0470$ $\log_2\text{FC}$) to supply protective phenolic antioxidants; *anl* mutants fail to sustain this shunt ($-0.0107$). Apocarotenoid and ester volatiles are repressed as cellular energy pivots toward DNA double-strand break repair.
+5. **Preservative Parity (DRS vs RL) & DDR Core Activation**: Deep Space Preservative (DRS) demonstrates high transcriptome-wide correlation ($r = 0.297$, $P < 10^{-15}$) and RRI trajectory parity ($0.706 \to 0.655$ in DRS vs $0.693 \to 0.616$ in RL) with RNAlater. Wild-Type plants mount robust induction of core DNA double-strand-break repair (BRCA1 $+2.03$, PARP2 $+0.86$, RAD51 $+0.16$) and the flavonoid gateway (PAL1 $+0.61$, CHS $+0.77$, F3H $+1.51$), whereas *anl* mutants display negative interaction terms across these protective loci.
 6. **Spatial Anatomical Vulnerability**: ggPlantMap projections show root apical meristem ($13.8\%$) and vascular stele ($12.5\%$) as primary damage foci, with floral reproductive whorls accounting for $>25\%$ of predicted stress vulnerability.
 
 <p align="center">
@@ -49,35 +49,35 @@ We specifically confront the foundational question:
 
 ```
 lunar-leaf-radiation-decoder/
-├── index.html                  # CoSE theme interactive web application (root)
+├── index.html                            # CoSE theme interactive web application (root)
 ├── docs/
-│   ├── index.html              # Mirror for GitHub Pages /docs branch configuration
+│   ├── index.html                        # Mirror for GitHub Pages /docs configuration
 │   ├── manuscript_brappa_radiation_decoding.md   # Publication manuscript draft
 │   ├── technical_report_brappa_decoders.md       # Comprehensive benchmark report
-│   ├── cose/                   # CoSE design system (chrome, theme, map, sites.js)
-│   └── assets/                 # CSS stylesheets and high-resolution figures
+│   ├── cose/                             # CoSE design system (chrome, theme, map, sites.js)
+│   └── assets/                           # CSS stylesheets and high-resolution figures
 ├── code/
 │   ├── 16_brappa_llgcss_ingest.py        # 1:1 DIAMOND orthology & data harmonization
 │   ├── 17_run_dsrs_classifier.py         # DSRS GSEA stress-recognition engine
 │   ├── 18_run_redox_cvae_decoder.py      # 41D CVAE ROS Decoder & kinetic estimation
-│   ├── 19_brappa_rri_and_scent_tradeoff.py # Sample RRI scores & scent trade-off
-│   └── 20_generate_figures_cross_species.py# Generates Figures 1 to 6 (PDF/PNG)
+│   ├── 19_brappa_rri_and_antioxidant_shield.py # Sample RRI scores, fixative parity & DDR core
+│   └── 20_generate_figures_cross_species.py    # Generates Figures 1 to 6 (PDF/PNG)
 ├── data/
-│   ├── brappa_master_orthology_contrasts.csv
+│   ├── brappa_master_radiation_contrasts.csv
 │   ├── brappa_sig_wt_gcr_40cGy.csv
 │   ├── brappa_sig_antho_less_gcr_40cGy.csv
 │   ├── brappa_sig_inter_dose_genotype.csv
-│   └── brappa_sig_scent_high_vs_low.csv
+│   └── brappa_sig_inter_dose_preservative.csv
 ├── results/
 │   ├── dsrs_brappa_stressor_rankings.csv
 │   ├── dsrs_brappa_family_rankings.csv
 │   ├── redox_decoder_brappa_predictions.csv
 │   ├── redox_decoder_organ_cell_scores.csv
 │   ├── brappa_rri_sample_scores.csv
-│   ├── brappa_scent_tradeoff_summary.csv
-│   └── figures/                # Figures 1 to 6 in vector PDF and 300 DPI PNG
-├── LICENSE                     # CC0 1.0 Universal License
-└── CITATION.cff                # Citation metadata
+│   ├── brappa_preservative_and_ddr_summary.csv
+│   └── figures/                          # Figures 1 to 6 in vector PDF and 300 DPI PNG
+├── LICENSE                               # CC0 1.0 Universal License
+└── CITATION.cff                          # Citation metadata
 ```
 
 ---
@@ -87,7 +87,7 @@ lunar-leaf-radiation-decoder/
 ### Prerequisites
 Python 3.9+ with standard scientific computing packages:
 ```bash
-pip install numpy pandas scipy matplotlib seaborn
+pip install numpy pandas scipy matplotlib seaborn scikit-learn
 ```
 
 ### End-to-End Pipeline Execution
@@ -101,10 +101,10 @@ python3 code/17_run_dsrs_classifier.py
 # 3. Decode reactive oxygen species profiles with the CVAE ROS Decoder
 python3 code/18_run_redox_cvae_decoder.py
 
-# 4. Compute RRI scores and analyze floral scent metabolic trade-offs
-python3 code/19_brappa_rri_and_scent_tradeoff.py
+# 4. Compute RRI scores, test DRS vs RL preservative parity, and quantify DDR core induction
+python3 code/19_brappa_rri_and_antioxidant_shield.py
 
-# 5. Generate publication figures
+# 5. Generate publication figures (Figures 1-6)
 python3 code/20_generate_figures_cross_species.py
 ```
 
@@ -114,7 +114,7 @@ python3 code/20_generate_figures_cross_species.py
 
 ```bibtex
 @article{barker2026lunarleaf,
-  title={Cross-Species Decoding of Cosmic Radiation, Redox Kinetics, and Floral Volatiles in Lunar LEAF Brassica rapa},
+  title={Beyond Classification: Machine Learning Latent Decoders Reveal Conserved Cosmic Radiation Kinetics, an Antioxidant Shield Deficit, and Fixative Fidelity in Brassica rapa (Lunar LEAF)},
   author={Barker, Richard and O'Rourke, Aubry and et al.},
   journal={npj Microgravity (in preparation)},
   year={2026},

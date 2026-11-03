@@ -76,7 +76,7 @@ window.BARKER_SITES = {
           desc:"Interactive FvCB model, and the six OSDR flight experiments that test it",
           url:"https://dr-richard-barker.github.io/Photorespiration_multiomics_microgravity/", thumb_ext:"gif" },
         { id:"lunar-leaf-radiation-decoder", emoji:"🌱", title:"Lunar LEAF Radiation & Redox Decoder",
-          desc:"Cross-species spaceflight stress, redox autoencoder & scent trade-off (B. rapa × Arabidopsis)",
+          desc:"Cross-species spaceflight stress, redox autoencoder & fixative fidelity (B. rapa × Arabidopsis)",
           url:"https://dr-richard-barker.github.io/lunar-leaf-radiation-decoder/" },
         { id:"Plant_response_to_radiation", emoji:"☢️", title:"OSDR Radiation Review",
           desc:"Radiation review & kinetic pattern-recognition across NASA OSDR",
