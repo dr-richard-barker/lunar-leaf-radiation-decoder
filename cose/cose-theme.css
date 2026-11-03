@@ -1,0 +1,92 @@
+/* ============================================================================
+   COSE overlay theme  (v0.3) — for pages that ALREADY have their own CSS.
+   Load this AFTER the page's own stylesheet. It does two things only:
+     1. Re-points the shared design tokens to the COSE / radiation-page palette
+        (so existing components that use var(--accent) etc. re-skin to match).
+     2. Adds the COSE brand chrome (logo, back-to-hub link, theme toggle).
+   It deliberately does NOT restyle h1/h2/.btn/.card etc. — the host page keeps
+   its own component styles; only colours + the brand chrome are unified.
+
+   From-scratch pages (e.g. the radiation page) use the fuller `theme.css`
+   instead; this overlay is the drop-in for the existing styled sites.
+   ========================================================================== */
+
+/* ---- 1. token unification (COSE palette) ---- */
+:root{
+  --bg:#ffffff; --fg:#1a2230; --muted:#5a6473; --line:#e5e9f0;
+  --card:#f7f9fc; --accent:#3B6EA5; --accent2:#3FB6A8;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0f141b; --fg:#e6ebf2; --muted:#9aa6b6; --line:#232c39;
+         --card:#161d27; --accent:#6ea3d8; --accent2:#54c9ba; }
+}
+/* theme.js samples the host page's actual background brightness and tags the
+   top bar so it matches a hard-coded-dark (or hard-coded-light) site,
+   regardless of the OS colour-scheme preference. Custom props inherit, so
+   setting them on .topbar re-colours its descendants only. */
+.topbar.cose-dark{
+  --bg:#0f141b; --fg:#e6ebf2; --muted:#9aa6b6; --line:#2b3543;
+  --card:#161d27; --accent:#6ea3d8; --accent2:#54c9ba; }
+.topbar.cose-light{
+  --bg:#ffffff; --fg:#1a2230; --muted:#5a6473; --line:#e5e9f0;
+  --card:#f7f9fc; --accent:#3B6EA5; --accent2:#3FB6A8; }
+
+/* ---- manual light / dark override (the theme toggle sets html[data-theme]) ----
+   Covers the token names used across the site family so the whole page — not
+   just the chrome — follows the reader's choice, overriding prefers-color-scheme. */
+html[data-theme="light"]{
+  --bg:#ffffff; --fg:#1a2230; --ink:#1a2230; --muted:#5a6473; --line:#e5e9f0;
+  --border:#e5e9f0; --card:#f7f9fc; --soft:#f7f9fc; --code:#f1f5f9;
+  --accent:#3B6EA5; --accent2:#3FB6A8; color-scheme:light;
+}
+html[data-theme="dark"]{
+  --bg:#0f141b; --fg:#e6ebf2; --ink:#e6ebf2; --muted:#9aa6b6; --line:#232c39;
+  --border:#232c39; --card:#161d27; --soft:#161d27; --code:#0f1a2e;
+  --accent:#6ea3d8; --accent2:#54c9ba; color-scheme:dark;
+}
+
+/* If the host page has a sticky top nav, reserve room so the fixed COSE
+   logo + hub link don't overlap its leading brand. Harmless otherwise. */
+header.site nav{ padding-left:96px }
+@media (max-width:560px){ header.site nav{ padding-left:84px } }
+
+/* ============================================================================
+   2. COSE BRAND CHROME  (identical behaviour to theme.css)
+   ========================================================================== */
+.topbar{position:fixed;top:12px;left:12px;z-index:40;display:flex;align-items:center;gap:8px}
+.cose-brand{display:inline-flex;align-items:center;line-height:0}
+.cose-brand img{height:30px;width:30px;display:block;border-radius:7px}
+.cose-brand:hover{filter:brightness(1.05)}
+
+/* light/dark theme toggle button */
+.cose-theme-btn{display:inline-flex;align-items:center;justify-content:center;
+  width:36px;height:34px;border-radius:8px;cursor:pointer;
+  border:1px solid var(--line);background:var(--card);color:var(--fg);
+  box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.cose-theme-btn:hover{filter:brightness(.98)}
+.cose-theme-btn svg{display:block}
+
+.cose-foot{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;margin-right:9px;font-weight:600}
+.cose-foot img{height:20px;width:20px;display:block;border-radius:5px}
+.cose-foot:hover{filter:brightness(1.05);text-decoration:none}
+
+/* reusable summary hero + button row (also in cose-chrome.css) */
+.cose-hero{max-width:960px;margin:0 auto;padding:52px 20px 6px}
+.cose-hero .cose-eyebrow{color:var(--accent);font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-size:.72rem;margin:0 0 8px}
+.cose-hero h1{font-size:1.85rem;line-height:1.15;margin:0 0 10px;color:var(--fg)}
+.cose-hero .cose-lede{font-size:1.05rem;color:var(--muted);margin:0 0 16px;max-width:72ch;line-height:1.55}
+.cose-btns{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 6px}
+.cose-btn{display:inline-block;padding:8px 15px;border-radius:8px;font-weight:600;font-size:.9rem;
+  border:1px solid var(--line);background:var(--card);color:var(--fg);text-decoration:none}
+.cose-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.cose-btn:hover{filter:brightness(1.05);text-decoration:none}
+
+/* back-to-hub link: arrow + hub name (just "Hub" on narrow screens) */
+.cose-hub-btn{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px 0 10px;
+  border-radius:8px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--fg);
+  font:600 .85rem/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  box-shadow:0 1px 2px rgba(0,0,0,.04);text-decoration:none;white-space:nowrap}
+.cose-hub-btn:hover{filter:brightness(.98);text-decoration:none}
+.cose-hub-btn svg{display:block;flex:none}
+.cose-hub-btn .lbl-long{display:none}
+@media (min-width:900px){ .cose-hub-btn .lbl-long{display:inline} .cose-hub-btn .lbl-short{display:none} }

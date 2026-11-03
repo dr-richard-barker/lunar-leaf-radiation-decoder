@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lunar LEAF Radiation & Redox Decoder | Cross-Species Spaceflight Systems Biology</title>
+<meta name="description" content="Cross-species translation of spaceflight transcriptomics, continuous radiation kinetics, and redox variational autoencoders from Arabidopsis thaliana to Brassica rapa (Lunar LEAF).">
+<script>
+  (function() {
+    let theme = localStorage.getItem('cose_theme');
+    if (!theme) {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+</script>
+<link rel="stylesheet" href="assets/theme.css">
+<link rel="stylesheet" href="cose/cose-theme.css">
+<link rel="stylesheet" href="cose/cose-chrome.css">
+<link rel="stylesheet" href="cose/cose-map.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  .topbar.cose-dark, .topbar.cose-light { z-index: 10001 !important; }
+  .sitebar.cose-dark, .sitebar.cose-light { z-index: 10000 !important; }
+  .map-scrim { z-index: 9999 !important; }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .stat-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+  }
+  .stat-val {
+    font-size: 2.1rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .stat-title {
+    font-weight: 700;
+    font-size: 1.0rem;
+    margin-bottom: 4px;
+    color: var(--fg);
+  }
+  .stat-desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin: 0;
+  }
+  .badge-tag {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 12px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    background: rgba(59, 110, 165, 0.12);
+    color: var(--accent);
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .figure-container {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px;
+    margin: 28px 0;
+  }
+  .figure-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .figure-caption {
+    font-size: 0.90rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+  }
+  .code-block {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.88rem;
+    overflow-x: auto;
+    color: var(--fg);
+  }
+  .hypothesis-box {
+    background: linear-gradient(135deg, rgba(59,110,165,0.08), rgba(63,182,168,0.08));
+    border-left: 4px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding: 18px 22px;
+    margin: 24px 0;
+  }
+  .hypothesis-box h3 {
+    margin: 0 0 8px;
+    font-size: 1.15rem;
+    color: var(--accent);
+  }
+  .hypothesis-box p {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body data-site-id="lunar-leaf-radiation-decoder">
+
+<header>
+  <div class="wrap">
+    <p class="eyebrow"><i class="fa-solid fa-moon"></i> Lunar LEAF · NASA Artemis III · Plant Radiation Systems Biology</p>
+    <h1>Cross-Species Spaceflight Stress &amp; Redox Decoder</h1>
+    <p class="lede">Translating spaceflight transcriptomics, continuous radiation kinetics, and conditional variational autoencoders (CVAE) from <em>Arabidopsis thaliana</em> to the lunar agriculture candidate crop <em>Brassica rapa</em> (Wisconsin Fast Plant).</p>
+    <p class="meta"><strong>Richard Barker, Ph.D.</strong> &amp; <strong>Aubry O'Rourke, Ph.D.</strong> et al. · <em>Brassica rapa</em> &amp; <em>Arabidopsis</em> · 40 cGy GCR · NASA Open Science Data Repository</p>
+    <div class="btns">
+      <a class="btn primary" href="docs/manuscript_brappa_radiation_decoding.md"><i class="fa-solid fa-file-lines"></i> Read Manuscript</a>
+      <a class="btn" href="docs/technical_report_brappa_decoders.md"><i class="fa-solid fa-chart-line"></i> Benchmark Report</a>
+      <a class="btn" href="https://github.com/dr-richard-barker/lunar-leaf-radiation-decoder"><i class="fa-brands fa-github"></i> GitHub Repository</a>
+      <a class="btn" href="https://osdr.nasa.gov"><i class="fa-solid fa-satellite"></i> NASA OSDR</a>
+      <a class="btn" href="https://cosecloud.com/"><i class="fa-solid fa-network-wired"></i> CoSE Cloud</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Overview &amp; Central Provocation</h2>
+    <p class="sub"><em>"Perhaps it's just a classification exercise?"</em></p>
+    <p>Bioregenerative life-support systems (BLSS) for the lunar surface (Artemis III Lunar LEAF) depend on fast-cycling crops that can tolerate Galactic Cosmic Rays (GCR) and successfully flower. While machine learning decoders have flourished in <em>Arabidopsis</em>, testing whether these models transfer to crops under real cosmic radiation remained unaddressed.</p>
+    
+    <div class="hypothesis-box">
+      <h3><i class="fa-solid fa-vial-circle-check"></i> The Dual-Layer Reality</h3>
+      <p><strong>At the diagnostic layer, YES:</strong> The DeepSpace Stress-Recognition System (DSRS) and Arabidopsis ROS Decoder classify 40 cGy GCR as an acute space radiation insult ($\rho = 0.255$) and predict elapsed kinetics ($3.84\text{ h}$, capturing the crisis nadir).<br>
+      <strong>At the biological layer, NO:</strong> It uncovers the <strong>Antioxidant Shield Deficit</strong>—loss of anthocyanin protection triggers unmitigated superoxide collapse and forces a metabolic diversion from floral scent emissions into DNA double-strand-break repair.</p>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-val">18,770</div>
+        <div class="stat-title">1:1 Ortholog Pairs</div>
+        <p class="stat-desc">Reciprocal best hit DIAMOND proteome crosswalk between <em>B. rapa</em> and TAIR10.</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">51.1% vs 24.9%</div>
+        <div class="stat-title">ROS Species Divergence</div>
+        <p class="stat-desc">WT buffers radiation to $H_2O_2$ (51.1%); <em>antho_less</em> suffers superoxide burst ($O_2^{\bullet-}$, 24.9%).</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">0.762 → 0.636</div>
+        <div class="stat-title">RRI Crisis Nadir</div>
+        <p class="stat-desc">40 cGy GCR collapses wild-type resilience; <em>antho_less</em> is constitutively collapsed at baseline (0.638).</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">363 Genes</div>
+        <div class="stat-title">Floral Scent Trade-off</div>
+        <p class="stat-desc">Phenylpropanoid precursors induced in WT, repressed in <em>anl</em>; apocarotenoids suppressed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="n">01</span> Conceptual Architecture &amp; Diagnostic Pipeline</h2>
+    <p class="sub">Bridging Lunar LEAF crop transcriptomics with continuous latent space models.</p>
+    <div class="figure-container">
+      <img src="assets/fig1_conceptual_architecture.png" alt="Figure 1: Conceptual Architecture">
+      <div class="figure-caption">
+        <strong>Figure 1. Hierarchical cross-species decoding framework.</strong> 
+        The pipeline ingests 39 libraries from <em>Brassica rapa</em> (40 cGy GCR vs 0 cGy, Wild-Type vs <em>anthocyaninless</em>) and floral scent selections, translates loci through the 18,770 1:1 DIAMOND orthology crosswalk, and queries the four-tier decoder stack: DSRS stress recognition, CVAE redox profiling, Radiation Resilience Index (RRI) trajectory projection, and floral scent volatile metabolic pathway routing.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="n">02</span> DSRS DeepSpace Stress Recognition <span class="badge-tag">Single-Cell Fingerprinting</span></h2>
+    <p class="sub">Validating that crop GCR radiation signatures map directly to spaceflight reference models.</p>
+    <p>We projected the orthology-translated <em>B. rapa</em> signatures onto the 123 single-cell developmental seed panels of the DeepSpace Stress-Recognition System (DSRS). Evaluating the radiation × genotype interaction contrast identified spaceflight and ionizing radiation as the top-ranking reference stressors.</p>
+    <div class="figure-container">
+      <img src="assets/fig2_dsrs_stress_recognition.png" alt="Figure 2: DSRS Stress Recognition">
+      <div class="figure-caption">
+        <strong>Figure 2. Cross-species stress recognition across 27 reference spaceflight stressors.</strong> 
+        <strong>(A)</strong> Top reference stressors matching the <em>B. rapa</em> radiation × genotype interaction signature, led by acute gamma radiation (`rad_100Gy_co60`, $\rho = 0.2545$) and galactic cosmic rays (`gcr_80cGy`, $\rho = 0.2170$). 
+        <strong>(B)</strong> Stressor family concordance heatmap: `radiation_GCR` (mean $\rho = 0.1504$) and `radiation_lowdose` ($\rho = 0.1321$) consistently dominate over hypergravity, hypoxia, and osmotic stress.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="n">03</span> Redox CVAE Decoding &amp; The "Antioxidant Shield Deficit"</h2>
+    <p class="sub">Disentangling reactive oxygen species cascades and elapsed response kinetics.</p>
+    <p>Using the 41-dimensional Developmental Stage conditioned Conditional Variational Autoencoder (CVAE) trained on 4,332 GEO transcriptomes, we decoded the chemical nature and temporal stage of the oxidative insult.</p>
+    <div class="figure-container">
+      <img src="assets/fig3_redox_cvae_decoding.png" alt="Figure 3: Redox CVAE Decoding">
+      <div class="figure-caption">
+        <strong>Figure 3. Arabidopsis ROS Decoder resolves antioxidant failure in anthocyaninless Fast Plants.</strong> 
+        <strong>(A)</strong> Decoded reactive oxygen species probabilities: Wild-Type GCR response is characterized by buffered $H_2O_2$ accumulation (51.1%), whereas the <em>anthocyaninless</em> (`anl`) mutant exhibits an unbuffered primary superoxide free-radical burst (Paraquat class 24.9%). 
+        <strong>(B)</strong> Inferred signaling kinetics: Wild-Type GCR corresponds to $3.84\text{ hours}$ post-exposure (Early Acute / Crisis Nadir), while <em>anl</em> exhibits an accelerated acute shock ($2.23\text{ hours}$).
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="n">04</span> Radiation Resilience Index (RRI) &amp; Housekeeping Collapse</h2>
+    <p class="sub">Quantifying tissue stability degradation and constitutive stress in mutant backgrounds.</p>
+    <p>The Radiation Resilience Index (RRI) integrates latent manifold distance ($\text{RRI}_{\text{latent}}$, weight 0.50), pathway activation balance ($\text{RRI}_{\text{pathway}}$, weight 0.25), and sustained housekeeping module preservation ($\text{RRI}_{\text{module}}$, weight 0.25).</p>
+    <div class="figure-container">
+      <img src="assets/fig4_rri_degradation.png" alt="Figure 4: RRI Degradation">
+      <div class="figure-caption">
+        <strong>Figure 4. Radiation Resilience Index (RRI) dynamics in <em>Brassica rapa</em>.</strong> 
+        <strong>(A)</strong> Wild-type Fast Plants exhibit an RRI drop from $0.762$ in sham controls to $0.636$ under 40 cGy GCR ($P = 4.2 \times 10^{-4}$), aligning with the 2–6 hour crisis nadir established in <em>Arabidopsis</em>. Strikingly, <em>anthocyaninless</em> plants at baseline (0 cGy) are constitutively depressed at $\text{RRI} = 0.638$. 
+        <strong>(B)</strong> Housekeeping module preservation collapses from $r = 0.481$ in WT controls to $0.126$ in irradiated plants, and is severely degraded in <em>anl</em> mutants ($r = 0.079$).
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="n">05</span> The Scent-Repair Metabolic Trade-Off <span class="badge-tag">Lunar Agriculture</span></h2>
+    <p class="sub">Energy reallocation between DNA double-strand-break repair and floral volatile emissions.</p>
+    <p>In closed bioregenerative life-support systems on the lunar surface, crop pollination and seed set depend on floral volatile emissions. We tracked 363 curated floral scent genes across five biosynthetic routes.</p>
+    <div class="figure-container">
+      <img src="assets/fig5_scent_metabolic_tradeoff.png" alt="Figure 5: Scent Metabolic Trade-off">
+      <div class="figure-caption">
+        <strong>Figure 5. Divergent metabolic routing in floral scent pathways under 40 cGy GCR.</strong> 
+        Wild-type plants upregulate benzenoid and phenylpropanoid pathways ($\text{mean } \Delta = +0.0470$ $\log_2\text{FC}$) to supply protective phenolic antioxidants, whereas <em>anthocyaninless</em> mutants fail to sustain this shunt ($-0.0107$). Apocarotenoid volatiles are suppressed across irradiated libraries as resources are allocated to core DNA double-strand-break repair (BRCA1, RAD51, PARP2).
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="n">06</span> Multi-View Spatial Anatomical Susceptibility (ggPlantMap)</h2>
+    <p class="sub">Resolving tissue layer vulnerability across vegetative and floral reproductive organs.</p>
+    <div class="figure-container">
+      <img src="assets/fig6_spatial_vulnerability.png" alt="Figure 6: Spatial Anatomical Vulnerability">
+      <div class="figure-caption">
+        <strong>Figure 6. Spatial susceptibility heatmap across 11 anatomical tissue layers.</strong> 
+        Root apical meristem ($13.8\%$) and central vascular stele ($12.5\%$) exhibit the highest vulnerability shares, while floral reproductive organs (anthers, gynoecium, petals) account for $>25\%$ of predicted stress vulnerability.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Data &amp; Code Repository</h2>
+    <p class="sub">FAIR-aligned, reproducible scripts and open-access benchmark data.</p>
+    <table>
+      <thead>
+        <tr><th>Pipeline Step</th><th>Script / File</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>01. Data Ingestion &amp; Orthology</td><td><code>code/16_brappa_llgcss_ingest.py</code></td><td>Ingests <em>B. rapa</em> LLGCSS, maps 18,770 RBH TAIR10 orthologs</td></tr>
+        <tr><td>02. DSRS Stress Recognition</td><td><code>code/17_run_dsrs_classifier.py</code></td><td>Fast GSEA projection across 123 seed panels &amp; 27 space stressors</td></tr>
+        <tr><td>03. Redox CVAE Decoding</td><td><code>code/18_run_redox_cvae_decoder.py</code></td><td>41D latent ROS class probabilities, kinetics, &amp; ggPlantMap</td></tr>
+        <tr><td>04. RRI &amp; Scent Trade-off</td><td><code>code/19_brappa_rri_and_scent_tradeoff.py</code></td><td>Sample-level RRI scoring across 31 libraries &amp; 363 scent genes</td></tr>
+        <tr><td>05. Figure Generation</td><td><code>code/20_generate_figures_cross_species.py</code></td><td>Publication-quality Figures 1 to 6 (PDF &amp; 300 DPI PNG)</td></tr>
+        <tr><td>Full Manuscript Draft</td><td><a href="docs/manuscript_brappa_radiation_decoding.md"><code>docs/manuscript_brappa_radiation_decoding.md</code></a></td><td>Targeted for <em>npj Microgravity / Communications Biology</em></td></tr>
+        <tr><td>Technical Benchmark</td><td><a href="docs/technical_report_brappa_decoders.md"><code>docs/technical_report_brappa_decoders.md</code></a></td><td>Data dictionary, mathematical formulation, reproduction guide</td></tr>
+      </tbody>
+    </table>
+    
+    <div style="margin-top:24px">
+      <h3>Quickstart Reproduction</h3>
+      <div class="code-block">
+# Clone the repository<br>
+git clone https://github.com/dr-richard-barker/lunar-leaf-radiation-decoder.git<br>
+cd lunar-leaf-radiation-decoder<br><br>
+# Run end-to-end pipeline<br>
+python3 code/16_brappa_llgcss_ingest.py<br>
+python3 code/17_run_dsrs_classifier.py<br>
+python3 code/18_run_redox_cvae_decoder.py<br>
+python3 code/19_brappa_rri_and_scent_tradeoff.py<br>
+python3 code/20_generate_figures_cross_species.py
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>
+      <a class="cose-foot" href="https://cosecloud.com/"><img src="cose/cose-logo.png" alt="CoSE logo"> CoSE Cloud</a> · 
+      <strong>Richard Barker, Ph.D.</strong> · <a href="https://github.com/dr-richard-barker">github.com/dr-richard-barker</a><br>
+      Primary data source: NASA Open Science Data Repository (<a href="https://osdr.nasa.gov">osdr.nasa.gov</a>) &amp; NASA Artemis III Lunar LEAF project.
+    </p>
+  </div>
+</footer>
+
+<script src="cose/sites.js"></script>
+<script src="cose/theme.js"></script>
+<script defer src="https://visitor-analytics.astrobotany.workers.dev/a.js"></script>
+</body>
+</html>
