@@ -247,8 +247,6 @@ fig.suptitle("Figure 5: Preservative Fixative Parity and DNA Double-Strand Break
 plt.tight_layout()
 fig.savefig(FIG_DIR / "fig5_preservative_and_ddr.png")
 fig.savefig(FIG_DIR / "fig5_preservative_and_ddr.pdf")
-# Also overwrite fig5_scent_metabolic_tradeoff with this clean figure if any script looks for it
-fig.savefig(FIG_DIR / "fig5_scent_metabolic_tradeoff.png")
 plt.close(fig)
 
 # -------------------------------------------------------------------------
